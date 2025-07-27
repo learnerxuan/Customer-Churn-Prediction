@@ -3,13 +3,9 @@ import pandas as pd
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
-import seaborn as sns
-import shap
 import google.generativeai as genai
-from io import BytesIO
 import base64
-import os
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
 
 # Configure page
 st.set_page_config(
@@ -317,43 +313,6 @@ def generate_batch_recommendations(churn_data: pd.DataFrame, gemini_api_key: str
 
     except Exception as e:
         return f"Error generating batch recommendations: {str(e)}. Please check your data format and API configuration."
-
-
-# Alternative simplified version if the above still has issues
-def generate_batch_recommendations_simple(churn_data: pd.DataFrame, gemini_api_key: str) -> str:
-    """Simplified version of batch recommendations with better error handling."""
-    try:
-        if not gemini_api_key or gemini_api_key.strip() == "":
-            return "Error: Please provide a valid Gemini API key."
-
-        # Configure API
-        genai.configure(api_key=gemini_api_key)
-
-        # Use a simpler model initialization
-        model = genai.GenerativeModel('gemini-pro')
-
-        # Basic analysis
-        total_customers = len(churn_data)
-        high_risk_count = len(churn_data[churn_data['Predicted Churn'] == 'Yes'])
-        churn_rate = (high_risk_count / total_customers * 100) if total_customers > 0 else 0
-
-        # Simple prompt
-        prompt = f"""
-        Analyze this telecom customer churn data:
-        - Total customers: {total_customers}
-        - High-risk customers: {high_risk_count} 
-        - Churn rate: {churn_rate:.1f}%
-
-        Provide 3 strategic recommendations and 3 immediate actions for customer retention.
-        Be concise and actionable.
-        """
-
-        response = model.generate_content(prompt)
-        return response.text if response and response.text else "Unable to generate recommendations."
-
-    except Exception as e:
-        return f"Error: {str(e)}"
-
 
 def generate_recommendations(churn_probability: float, explanation: str, gemini_api_key: str) -> str:
     """Generate AI-powered recommendations using Gemini API."""
